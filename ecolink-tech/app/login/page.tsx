@@ -4,23 +4,40 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { loginUser, seedDemoUser } from "@/lib/storage";
+import { saveSession } from "@/lib/storage";
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  seedDemoUser();
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user = loginUser(email, password);
-    if (!user) {
-      setError("Correo o contraseña incorrectos.");
+    setError("");
+    setLoading(true);
+
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ correo, password }),
+    });
+
+    setLoading(false);
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error);
       return;
     }
+
+    saveSession({
+      id_usuario: data.usuario.id_usuario,
+      name: data.usuario.nombre,
+      email: data.usuario.correo,
+      rol: data.usuario.rol,
+    });
     router.push("/");
   };
 
@@ -35,8 +52,8 @@ export default function Login() {
             type="email"
             placeholder="Correo electrónico"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
             className="w-full border p-4 rounded-xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-700"
           />
           <input
@@ -48,13 +65,14 @@ export default function Login() {
             className="w-full border p-4 rounded-xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-700"
           />
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-red-500 text-sm" role="alert">{error}</p>}
 
           <button
             type="submit"
-            className="w-full bg-green-700 text-white py-4 rounded-xl font-bold hover:bg-green-800 transition"
+            disabled={loading}
+            className="w-full bg-green-700 text-white py-4 rounded-xl font-bold hover:bg-green-800 transition disabled:opacity-50"
           >
-            Iniciar Sesión
+            {loading ? "Ingresando..." : "Iniciar Sesión"}
           </button>
         </form>
 

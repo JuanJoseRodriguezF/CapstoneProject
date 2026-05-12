@@ -60,7 +60,7 @@ export default function Convenios() {
         {loading ? (
           <div className="flex items-center justify-center py-24" role="status" aria-live="polite">
             <div className="w-10 h-10 border-4 border-green-700 border-t-transparent rounded-full animate-spin" />
-            <span className="ml-4 text-gray-500">Buscando convenios disponibles...</span>
+          <span className="ml-4 text-gray-500">Buscando convenios disponibles...</span>
           </div>
         ) : filtrados.length === 0 ? (
           /* Mensaje de error accionable RNF-09 */

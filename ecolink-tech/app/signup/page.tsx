@@ -4,26 +4,40 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { registerUser } from "@/lib/storage";
 
 export default function Signup() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [ciudad, setCiudad] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     if (password.length < 6) {
       setError("La contraseña debe tener al menos 6 caracteres.");
       return;
     }
-    const ok = registerUser(name, email, password);
-    if (!ok) {
-      setError("Ya existe una cuenta con ese correo.");
+    setLoading(true);
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre, correo, password, telefono, ciudad }),
+    });
+
+    setLoading(false);
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error);
       return;
     }
+
     router.push("/login");
   };
 
@@ -38,16 +52,16 @@ export default function Signup() {
             type="text"
             placeholder="Nombre completo"
             required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
             className="w-full border p-4 rounded-xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-700"
           />
           <input
             type="email"
             placeholder="Correo electrónico"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
             className="w-full border p-4 rounded-xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-700"
           />
           <input
@@ -58,14 +72,29 @@ export default function Signup() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border p-4 rounded-xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-700"
           />
+          <input
+            type="tel"
+            placeholder="Teléfono (opcional)"
+            value={telefono}
+            onChange={(e) => setTelefono(e.target.value)}
+            className="w-full border p-4 rounded-xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-700"
+          />
+          <input
+            type="text"
+            placeholder="Ciudad (opcional)"
+            value={ciudad}
+            onChange={(e) => setCiudad(e.target.value)}
+            className="w-full border p-4 rounded-xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-700"
+          />
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-red-500 text-sm" role="alert">{error}</p>}
 
           <button
             type="submit"
-            className="w-full bg-green-700 text-white py-4 rounded-xl font-bold hover:bg-green-800 transition"
+            disabled={loading}
+            className="w-full bg-green-700 text-white py-4 rounded-xl font-bold hover:bg-green-800 transition disabled:opacity-50"
           >
-            Registrarse
+            {loading ? "Registrando..." : "Registrarse"}
           </button>
         </form>
 

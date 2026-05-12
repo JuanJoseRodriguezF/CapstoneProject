@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Usuario {
+  id_usuario   Int            @id @default(autoincrement())
+  nombre       String
+  correo       String         @unique
+  password     String
+  rol          String         @default("ciudadano")
+  telefono     String?
+  ciudad       String?
+  residuos     Residuo[]      @relation("UsuarioResiduos")
+  recolecciones Recoleccion[] @relation("GestorRecolecciones")
+}
+
+model Residuo {
+  id_residuo      Int          @id @default(autoincrement())
+  tipo            String
+  descripcion     String?
+  estado          String       @default("pendiente")
+  fecha_registro  DateTime     @default(now())
+  id_usuario      Int
+  id_punto        Int?
+  usuario         Usuario      @relation("UsuarioResiduos", fields: [id_usuario], references: [id_usuario])
+  punto           PuntoRecoleccion? @relation(fields: [id_punto], references: [id_punto])
+  recoleccion     Recoleccion?
+}
+
+model Recoleccion {
+  id_recoleccion   Int                @id @default(autoincrement())
+  id_residuo       Int                @unique
+  id_gestor        Int
+  fecha_asignacion DateTime           @default(now())
+  fecha_recoleccion DateTime?
+  estado           String             @default("en proceso")
+  residuo          Residuo            @relation(fields: [id_residuo], references: [id_residuo])
+  gestor           Usuario            @relation("GestorRecolecciones", fields: [id_gestor], references: [id_usuario])
+  historial        HistorialEstado[]
+}
+
+model PuntoRecoleccion {
+  id_punto   Int       @id @default(autoincrement())
+  nombre     String
+  direccion  String
+  ciudad     String
+  residuos   Residuo[]
+}
+
+model Ciudad {
+  id_entidad Int    @id @default(autoincrement())
+  nombre     String
+  tipo       String
+  contacto   String
+}
+
+model HistorialEstado {
+  id_historial   Int         @id @default(autoincrement())
+  id_recoleccion Int
+  estado         String
+  fecha          DateTime    @default(now())
+  responsable    String
+  recoleccion    Recoleccion @relation(fields: [id_recoleccion], references: [id_recoleccion])
+}
+
+model Cita {
+  id           Int      @id @default(autoincrement())
+  centroId     Int
+  centroNombre String
+  fecha        String
+  hora         String
+  userEmail    String
+  createdAt    DateTime @default(now())
+}
