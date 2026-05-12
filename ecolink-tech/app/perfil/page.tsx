@@ -33,7 +33,10 @@ export default function Perfil() {
 
   useEffect(() => {
     const session = getSession();
-    if (!session) { router.push("/login"); return; }
+    if (!session) {
+      router.replace("/login");
+      return;
+    }
     setUser(session);
     setDevice(getDevice());
     const citaData = localStorage.getItem("cita");

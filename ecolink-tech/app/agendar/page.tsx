@@ -22,8 +22,14 @@ export default function Agendar() {
   const [exito, setExito] = useState(false);
   const [error, setError] = useState("");
 
+  const [checked, setChecked] = useState(false);
+
   useEffect(() => {
-    if (!getSession()) router.push("/login");
+    if (!getSession()) {
+      router.replace("/login");
+    } else {
+      setChecked(true);
+    }
   }, []);
 
   const handleConfirmar = async () => {

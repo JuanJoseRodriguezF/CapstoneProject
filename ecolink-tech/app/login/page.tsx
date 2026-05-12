@@ -1,10 +1,10 @@
 // app/login/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { saveSession } from "@/lib/storage";
+import { saveSession, getSession } from "@/lib/storage";
 
 export default function Login() {
   const router = useRouter();
@@ -12,6 +12,11 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Si ya hay sesión activa, ir al home directamente
+  useEffect(() => {
+    if (getSession()) router.replace("/");
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,11 +29,11 @@ export default function Login() {
       body: JSON.stringify({ correo, password }),
     });
 
-    setLoading(false);
     const data = await res.json();
+    setLoading(false);
 
     if (!res.ok) {
-      setError(data.error);
+      setError(data.error ?? "Error al iniciar sesión.");
       return;
     }
 
@@ -38,7 +43,8 @@ export default function Login() {
       email: data.usuario.correo,
       rol: data.usuario.rol,
     });
-    router.push("/");
+
+    window.location.href = "/";
   };
 
   return (
