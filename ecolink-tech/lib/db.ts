@@ -1,11 +1,13 @@
 // lib/db.ts
 import { PrismaClient } from "./generated/prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import path from "path";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 function createPrisma() {
-  const adapter = new PrismaLibSql({ url: "file:prisma/dev.db" } as any);
+  const dbUrl = path.resolve(process.cwd(), "prisma/dev.db");
+  const adapter = new PrismaBetterSqlite3({ url: dbUrl });
   return new PrismaClient({ adapter } as any);
 }
 
