@@ -1,4 +1,5 @@
 // app/api/puntos/route.ts
+export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 

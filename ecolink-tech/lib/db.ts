@@ -1,10 +1,10 @@
 // lib/db.ts
-import "server-only";
 import { PrismaClient } from "./generated/prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { neonConfig, Pool } from "@neondatabase/serverless";
 
-if (typeof WebSocket === "undefined") {
+// Usar WebSocket nativo del browser en edge, o ws en Node.js
+if (process.env.NEXT_RUNTIME === "nodejs") {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   neonConfig.webSocketConstructor = require("ws");
 }
